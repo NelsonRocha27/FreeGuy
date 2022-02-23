@@ -49,3 +49,16 @@ class Game:
 
     def GetStatus(self):
         return self.status
+
+    def IsFreeToKeep(self):
+        if self.status.lower() == "free to keep":
+            return True
+        else:
+            return False
+
+    def IsRepeated(self, list_of_games):
+        for game in list_of_games:
+            if self.name == game.name and self.provider == game.provider and self.platform == game.platform and self.link == game.link:
+                return True
+
+        return False
