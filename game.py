@@ -5,6 +5,7 @@ class Game:
     image = None
     provider = None
     status = None
+    date = None
 
     def __init__(self):
         self.name = None
@@ -13,6 +14,7 @@ class Game:
         self.image = None
         self.provider = None
         self.status = None
+        self.date = None
 
     def AddName(self, name):
         self.name = name
@@ -49,6 +51,12 @@ class Game:
 
     def GetStatus(self):
         return self.status
+
+    def AddDate(self, date):
+        self.date = date
+
+    def GetDate(self):
+        return self.date
 
     def IsFreeToKeep(self):
         if self.status.lower() == "free to keep":

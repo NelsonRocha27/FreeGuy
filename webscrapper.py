@@ -1,4 +1,5 @@
 import time
+from datetime import date
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
@@ -11,6 +12,7 @@ from game import Game
 
 
 class WebScrape:
+    games_list = []
 
     def __init__(self):
         options = webdriver.ChromeOptions()
@@ -30,10 +32,14 @@ class WebScrape:
         driver.switch_to.frame(iframe)
 
         try:
-            myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.XPATH, "//div[@class='splide__slide splide__slide--clone']")))
-            myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.XPATH, "//a[@class='splide__slide__container']")))
-            myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.XPATH, "//img[@class='game-cover']")))
-            myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.XPATH, "//span[@class='free-game-type']")))
+            myElem = WebDriverWait(driver, delay).until(
+                EC.presence_of_element_located((By.XPATH, "//div[@class='splide__slide splide__slide--clone']")))
+            myElem = WebDriverWait(driver, delay).until(
+                EC.presence_of_element_located((By.XPATH, "//a[@class='splide__slide__container']")))
+            myElem = WebDriverWait(driver, delay).until(
+                EC.presence_of_element_located((By.XPATH, "//img[@class='game-cover']")))
+            myElem = WebDriverWait(driver, delay).until(
+                EC.presence_of_element_located((By.XPATH, "//span[@class='free-game-type']")))
             print("Frame is ready!")
             time.sleep(5)
         except TimeoutException:
@@ -41,7 +47,6 @@ class WebScrape:
 
         games = driver.find_elements(by=By.XPATH, value="//div[@class='splide__slide splide__slide--clone']")
 
-        games_list = []
         for i in range(len(games)):
             game = Game()
             game.AddPlatform(games[i].get_attribute('data-console'))
@@ -57,12 +62,11 @@ class WebScrape:
             free_game_type = games[i].find_element(by=By.XPATH, value=".//span[@class='free-game-type']")
             game.AddStatus(free_game_type.get_attribute("innerHTML").strip())
 
-            if not game.IsRepeated(games_list):
+            if not game.IsRepeated(self.games_list):
                 if game.IsFreeToKeep() is True:
-                    games_list.append(game)
+                    game.AddDate(date.today().strftime("%d/%m/%Y"))
+                    self.games_list.append(game)
             else:
                 print("Repeated game. Ignoring...")
-
-        print("lol")
 
         pass

@@ -14,6 +14,9 @@ db = DataBase(os.getenv('DBURL'))
 async def on_ready():
     print('Bot is now logged in as {0.user}'.format(client))
     WebScrape()
+    list = WebScrape.games_list
+    for game in list:
+        db.Add_Game(game)
 
 
 @client.command()

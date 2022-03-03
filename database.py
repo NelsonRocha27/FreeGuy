@@ -1,7 +1,10 @@
+from datetime import datetime, timedelta
+
 from pymongo import MongoClient
 
 
 class DataBase:
+    gamesDBID = "GamesDB"
     cluster = None
     db = None
     collection = None
@@ -12,17 +15,38 @@ class DataBase:
         self.db = self.cluster["FreeGuyDB"]
         self.collection = self.db["Games"]
 
-    def Add_Game(self, guild_id, game):
-        """guildIDQuery = {"_id": guild_id}
-        if self.collection.count_documents(guildIDQuery) == 0:
-            post = {"_id": guild_id, "team": [team]}
+    def Add_Game(self, game):
+        gamesDBIDQuery = {"_id": self.gamesDBID}
+        gameQuery = {"name": game.name, "link": game.link, "platform": game.platform, "image": game.image,
+                     "provider": game.provider, "status": game.status, "date": game.date}
+
+        if self.collection.count_documents(gamesDBIDQuery) == 0:
+            post = {"_id": self.gamesDBID, "game": [gameQuery]}
             self.collection.insert_one(post)
         else:
-            guild = self.collection.find(guildIDQuery)
-            for result in guild:
-                listOfTeams = result["team"]
-            listOfTeams.append(team)
-            self.collection.update_one({"_id": guild_id}, {"$set": {"team": listOfTeams}})"""
+            if self.Is_Game_Advertiseable(game, 30):
+                self.collection.update_one({"_id": self.gamesDBID}, {"$push": {"game": gameQuery}})
+
+    """
+    Check if game exists in database already. If the game exists and was placed in database in a space time 
+    shorter than 'timeframe' (in days) returns false, otherwise returns true     
+    """
+    def Is_Game_Advertiseable(self, game, timeframe):
+        listOfGames = []
+        for document in self.collection.find({"_id": self.gamesDBID, "game": {"$exists": True}}):
+            listOfGames = document['game']
+
+        for dbGame in listOfGames:
+            dbGameDateTimeObj = datetime.strptime(game.date, "%d/%m/%Y")
+            timeElapsed = datetime.today() - dbGameDateTimeObj
+            nrDays = timedelta(days=timeframe)
+            if dbGame.get('name') == game.name and dbGame.get('provider') == game.provider \
+                    and dbGame.get('platform') == game.platform and dbGame.get('link') == game.link \
+                    and timeElapsed < nrDays:
+                return False
+            else:
+                return True
+
 
     """def List_Teams(self, guild_id):
         for document in self.collection.find({"_id": guild_id, "team": {"$exists": True}}):
