@@ -31,6 +31,7 @@ class DataBase:
     Check if game exists in database already. If the game exists and was placed in database in a space time 
     shorter than 'timeframe' (in days) returns false, otherwise returns true     
     """
+
     def Is_Game_Advertiseable(self, game, timeframe):
         listOfGames = []
         for document in self.collection.find({"_id": self.gamesDBID, "game": {"$exists": True}}):
@@ -44,9 +45,23 @@ class DataBase:
                     and dbGame.get('platform') == game.platform and dbGame.get('link') == game.link \
                     and timeElapsed < nrDays:
                 return False
-            else:
-                return True
+        return True
 
+    def Define_Text_Channel(self, guild_id, channel_id):
+        if self.collection.count_documents({"_id": guild_id}) == 0:
+            self.collection.insert_one({"_id": guild_id, "textChannelID": channel_id})
+        else:
+            self.collection.update_one({"_id": guild_id}, {"$set": {"textChannelID": channel_id}})
+
+    def Get_Text_Channel(self, guild_id):
+        id = None
+        for document in self.collection.find({"_id": guild_id, "textChannelID": {"$exists": True}}):
+            id = document['textChannelID']
+
+        if id is None:
+            return None
+        else:
+            return id
 
     """def List_Teams(self, guild_id):
         for document in self.collection.find({"_id": guild_id, "team": {"$exists": True}}):
