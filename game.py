@@ -64,9 +64,18 @@ class Game:
         else:
             return False
 
+    def IsPCGame(self):
+        if self.platform.lower() == "pc":
+            return True
+        else:
+            return False
+
     def IsRepeated(self, list_of_games):
         for game in list_of_games:
             if self.name == game.name and self.provider == game.provider and self.platform == game.platform and self.link == game.link:
                 return True
 
         return False
+
+    def Message(self):
+        return "[" + self.provider.upper() + "] - " + self.name + "\n" + self.link + "\n"

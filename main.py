@@ -1,3 +1,4 @@
+import asyncio
 import os
 from database import DataBase
 from dotenv import load_dotenv
@@ -6,7 +7,7 @@ from webscrapper import WebScrape
 
 load_dotenv()
 
-client = commands.Bot(command_prefix='.')
+client = commands.Bot(command_prefix='*')
 db = DataBase(os.getenv('DBURL'))
 guilds = {}
 
@@ -27,10 +28,7 @@ async def on_ready():
         guilds[guild.id] = text_channel
 
     print('Bot is now logged in as {0.user}'.format(client))
-    WebScrape()
-    list = WebScrape.games_list
-    for game in list:
-        db.Add_Game(game)
+    client.loop.create_task(Listen_For_New_Games())
 
 
 @client.command()
@@ -45,6 +43,29 @@ async def set_text_channel(ctx):
             guilds[guild] = ctx.channel.id
     db.Define_Text_Channel(ctx.guild.id, ctx.channel.id)
 
+
+async def Listen_For_New_Games():
+    await client.wait_until_ready()
+    message_link = None
+
+    while not client.is_closed():
+
+        WebScrape()
+        list = WebScrape.games_list
+        for game in list:
+            db.Add_Game(game)
+            if db.Is_New_Game():
+                for guild in guilds:
+                    if guilds[guild] is not None:
+                        channel = client.get_channel(guilds[guild])
+                    else:
+                        text_channel_list = []
+                        for channel in guild.text_channels:
+                            text_channel_list.append(channel)
+                        channel = text_channel_list[0]
+                    await channel.send(game.Message())
+
+        await asyncio.sleep(3600)  # task runs every 1 hour
 
 client.run(os.getenv('TOKEN'))
 pass

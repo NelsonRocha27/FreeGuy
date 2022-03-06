@@ -64,8 +64,9 @@ class WebScrape:
 
             if not game.IsRepeated(self.games_list):
                 if game.IsFreeToKeep() is True:
-                    game.AddDate(date.today().strftime("%d/%m/%Y"))
-                    self.games_list.append(game)
+                    if game.IsPCGame() is True:
+                        game.AddDate(date.today().strftime("%d/%m/%Y"))
+                        self.games_list.append(game)
             else:
                 print("Repeated game. Ignoring...")
 

@@ -9,13 +9,16 @@ class DataBase:
     db = None
     collection = None
     listOfTeams = []
+    newGame = False
 
     def __init__(self, url):
         self.cluster = MongoClient(url)
         self.db = self.cluster["FreeGuyDB"]
         self.collection = self.db["Games"]
+        self.newGame = False
 
     def Add_Game(self, game):
+        self.newGame = False
         gamesDBIDQuery = {"_id": self.gamesDBID}
         gameQuery = {"name": game.name, "link": game.link, "platform": game.platform, "image": game.image,
                      "provider": game.provider, "status": game.status, "date": game.date}
@@ -23,9 +26,11 @@ class DataBase:
         if self.collection.count_documents(gamesDBIDQuery) == 0:
             post = {"_id": self.gamesDBID, "game": [gameQuery]}
             self.collection.insert_one(post)
+            self.newGame = True
         else:
             if self.Is_Game_Advertiseable(game, 30):
                 self.collection.update_one({"_id": self.gamesDBID}, {"$push": {"game": gameQuery}})
+                self.newGame = True
 
     """
     Check if game exists in database already. If the game exists and was placed in database in a space time 
@@ -62,6 +67,12 @@ class DataBase:
             return None
         else:
             return id
+
+    def Is_New_Game(self):
+        if self.newGame:
+            return True
+        else:
+            return False
 
     """def List_Teams(self, guild_id):
         for document in self.collection.find({"_id": guild_id, "team": {"$exists": True}}):
