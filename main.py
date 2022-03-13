@@ -31,9 +31,9 @@ async def on_ready():
     client.loop.create_task(Listen_For_New_Games())
 
 
-@client.command()
-async def ping(ctx):
-    await ctx.send('pong')
+@client.command(aliases=['echo'])
+async def Echo_Game(ctx, link):
+    await ctx.send(link + "\n")
 
 
 @client.command(aliases=['here'])
