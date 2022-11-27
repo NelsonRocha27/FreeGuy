@@ -35,7 +35,7 @@ class WebScrape:
             myElem = WebDriverWait(driver, delay).until(
                 EC.presence_of_element_located((By.XPATH, "//div[@class='splide__slide splide__slide--clone']")))
             myElem = WebDriverWait(driver, delay).until(
-                EC.presence_of_element_located((By.XPATH, "//a[@class='splide__slide__container']")))
+                EC.presence_of_element_located((By.XPATH, "//a[@class='splide__slide__container affiliate']")))
             myElem = WebDriverWait(driver, delay).until(
                 EC.presence_of_element_located((By.XPATH, "//img[@class='game-cover']")))
             myElem = WebDriverWait(driver, delay).until(
@@ -52,7 +52,7 @@ class WebScrape:
             game.AddPlatform(games[i].get_attribute('data-console'))
             game.AddProvider(games[i].get_attribute('data-drm'))
 
-            href = games[i].find_element(by=By.XPATH, value=".//a[@class='splide__slide__container']")
+            href = games[i].find_element(by=By.XPATH, value=".//a[@class='splide__slide__container affiliate']")
             game.AddLink(href.get_attribute('href'))
 
             game_container = games[i].find_element(by=By.XPATH, value=".//img[@class='game-cover']")
@@ -63,7 +63,9 @@ class WebScrape:
             game.AddStatus(free_game_type.get_attribute("innerHTML").strip())
 
             if not game.IsRepeated(self.games_list):
-                if game.IsFreeToKeep() is True:
+                if game.IsFreeToKeep(free_with_prime=True) is True:
+                    if game.status.lower() == "free with prime":
+                        game.AddProvider("prime gaming")
                     if game.IsPCGame() is True:
                         game.AddDate(date.today().strftime("%d/%m/%Y"))
                         self.games_list.append(game)

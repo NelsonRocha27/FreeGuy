@@ -1,0 +1,1 @@
+C:\Users\nelso\source\repos\FreeGuy\venv\Scripts\activate.bat && python C:\Users\nelso\source\repos\FreeGuy\main.py

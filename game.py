@@ -1,3 +1,8 @@
+import os
+
+import requests
+
+
 class Game:
     name = None
     link = None
@@ -6,6 +11,7 @@ class Game:
     provider = None
     status = None
     date = None
+    imageLocalPath = None
 
     def __init__(self):
         self.name = None
@@ -15,6 +21,7 @@ class Game:
         self.provider = None
         self.status = None
         self.date = None
+        self.imageLocalPath = os.path.dirname(os.path.abspath(__file__)) + "\\prime_gaming_image.jpg"
 
     def AddName(self, name):
         self.name = name
@@ -58,8 +65,10 @@ class Game:
     def GetDate(self):
         return self.date
 
-    def IsFreeToKeep(self):
+    def IsFreeToKeep(self, free_with_prime):
         if self.status.lower() == "free to keep":
+            return True
+        elif free_with_prime is True and self.status.lower() == "free with prime":
             return True
         else:
             return False
@@ -79,3 +88,14 @@ class Game:
 
     def Message(self):
         return "[" + self.provider.upper() + "] - " + self.name + "\n" + self.link + "\n"
+
+    def DownloadImageFromURL(self):
+        img_data = requests.get(self.image).content
+        with open(self.imageLocalPath, 'wb') as handler:
+            handler.write(img_data)
+
+    def DeleteImageDownload(self):
+        if os.path.exists(self.imageLocalPath):
+            os.remove(self.imageLocalPath)
+        else:
+            print("The image does not exist")

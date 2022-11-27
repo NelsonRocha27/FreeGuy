@@ -1,5 +1,6 @@
 import asyncio
 import os
+import discord
 from database import DataBase
 from dotenv import load_dotenv
 from discord.ext import commands
@@ -63,7 +64,13 @@ async def Listen_For_New_Games():
                         for channel in guild.text_channels:
                             text_channel_list.append(channel)
                         channel = text_channel_list[0]
-                    await channel.send(game.Message())
+                    if game.provider == "prime gaming":
+                        game.DownloadImageFromURL()
+                        file = discord.File(game.imageLocalPath, filename=game.imageLocalPath)
+                        await channel.send(game.Message(), file=file)
+                        game.DeleteImageDownload()
+                    else:
+                        await channel.send(game.Message())
 
         await asyncio.sleep(3600)  # task runs every 1 hour
 
