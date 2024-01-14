@@ -45,7 +45,9 @@ class WebScrape:
         except TimeoutException:
             print("Loading took too much time!")
 
-        games = driver.find_elements(by=By.XPATH, value="//div[@class='splide__slide splide__slide--clone']")
+        # games = driver.find_elements(by=By.XPATH, value="//div[@class='splide__slide splide__slide--clone']")
+        games = driver.find_elements(by=By.XPATH, value="//div[@class='splide__slide']")
+        games += driver.find_elements(by=By.XPATH, value="//div[@class='splide__slide is-active is-visible']")
 
         for i in range(len(games)):
             game = Game()
