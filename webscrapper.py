@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from game import Game
+from updatewebdriver import WebDriver
 
 
 class WebScrape:
@@ -17,7 +18,12 @@ class WebScrape:
     def __init__(self):
         options = webdriver.ChromeOptions()
         options.add_argument("headless")
-        driver = webdriver.Chrome('chromedriver_win32/chromedriver', chrome_options=options)
+        try:
+            driver = webdriver.Chrome('chromedriver-win32/chromedriver', chrome_options=options)
+        except Exception as error:
+            print("An exception occurred:", type(error).__name__, "–", error)
+            WebDriver(error, "chromedriver-win32")
+            driver = webdriver.Chrome('chromedriver-win32/chromedriver', chrome_options=options)
         driver.get('https://www.allkeyshop.com/blog/daily-deals/')
 
         delay = 10  # seconds
@@ -65,6 +71,7 @@ class WebScrape:
             game.AddStatus(free_game_type.get_attribute("innerHTML").strip())
 
             if not game.IsRepeated(self.games_list):
+                print(game.name + " - [" + game.platform.upper() + "]")
                 if game.IsFreeToKeep(free_with_prime=True) is True:
                     if game.status.lower() == "free with prime":
                         game.AddProvider("prime gaming")
